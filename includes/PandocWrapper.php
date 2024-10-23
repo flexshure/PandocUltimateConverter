@@ -62,7 +62,15 @@ class PandocWrapper
             '--request-header=User-Agent:"Mozilla/5.0"',
             $source
         ];
-        if ($format) {
+        // .doc piped from antiword
+        if (strcasecmp($format, "doc") === 0) {
+                $command = "antiword -x db $source | $this->pandocExecutablePath -f docbook --to=mediawiki --extract-media=.$subfolder_name";
+                $commands = [
+                        'bash',
+                        '-c',
+                        $command
+                ];
+        } elseif ($format) {
             $commands[] = '--from=' . $format;
         }
 
@@ -86,9 +94,9 @@ class PandocWrapper
 
     public function convertFile($filePath)
     {
-        //$ext = pathinfo($filePath, PATHINFO_EXTENSION); // Can be used to specify format forcefully
+        $ext = pathinfo($filePath, PATHINFO_EXTENSION); // Can be used to specify format forcefully
         $base_name = pathinfo($filePath, PATHINFO_FILENAME);
-        return PandocWrapper::convertInternal($filePath, $base_name);
+        return PandocWrapper::convertInternal($filePath, $base_name, $ext);
     }
 
 
